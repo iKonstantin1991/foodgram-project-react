@@ -14,7 +14,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from users.serializers import RecipeLiteSerializer
 
-from .filters import RecipeFilter, IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
 from .models import (FavoritRecipe, Ingredient, IngredientForRecipe, Recipe,
                      ShoppingList, Tag)
 from .permissions import OwnerOrAdminOrAuthenticatedOrReadOnly
@@ -80,8 +80,8 @@ class RecipeViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def get_serializer_class(self, **kwargs):
-        if (kwargs.get('to_represent', False) or
-                self.request.method in ['GET', 'DELETE']):
+        if (kwargs.get('to_represent', False)
+                or self.request.method in ['GET', 'DELETE']):
             return RecipeSerializer
         return RecipePostUpdateSerializer
 
