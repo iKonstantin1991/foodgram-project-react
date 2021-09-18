@@ -1,30 +1,37 @@
-from rest_framework.exceptions import ValidationError, NotAuthenticated, NotAcceptable
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from djoser.views import UserViewSet
+from rest_framework import status
+from rest_framework.authentication import (SessionAuthentication,
+                                           TokenAuthentication)
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from .models import User, Subscription
-from .serializers import CustomUserSerializer
-from backend.settings import REST_FRAMEWORK
+from .models import Subscription, User
+from .serializers import CustomUserSerializer, SubscriptionsUserSerializer
 
 
 class CustomUserViewSet(UserViewSet):
-    @action(["get"], detail=False)
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    @action(
+        methods=["get"],
+        detail=False,
+        serializer_class=SubscriptionsUserSerializer,
+        permission_classes=[IsAuthenticated]
+    )
     def subscriptions(self, request, *args, **kwargs):
         user_subscriptions = User.objects.filter(
             followed__user=self.request.user
         )
-        serializer = self.get_serializer(user_subscriptions, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(user_subscriptions)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=False,
+        detail=True,
         methods=['get', 'delete'],
-        url_path=(r'(?P<id>\d+)/subscribe'),
-        url_name='subscribe',
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, *args, **kwargs):
@@ -35,7 +42,9 @@ class CustomUserViewSet(UserViewSet):
         ).exists()
         if request.method == 'GET':
             if request.user == interesting_author:
-                raise ValidationError("It's not allowed to subscribe on youself")
+                raise ValidationError(
+                    {"errors": "It's not allowed to subscribe on youself"}
+                )
             if not existance:
                 Subscription.objects.create(
                     user=request.user,
@@ -45,11 +54,14 @@ class CustomUserViewSet(UserViewSet):
                     interesting_author,
                     context={'request': request}
                 )
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
             else:
-                raise NotAcceptable(detail='Such subscription already exists', code=status.HTTP_400_BAD_REQUEST)
-                # return Response(status=status.HTTP_400_BAD_REQUEST)
-                # raise APIException("Such subscription already exists")
+                raise ValidationError(
+                    {"errors": "Such subscription already exists"}
+                )
         if request.method == 'DELETE':
             if existance:
                 Subscription.objects.get(
@@ -58,4 +70,6 @@ class CustomUserViewSet(UserViewSet):
                 ).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
-                raise NotAcceptable()
+                raise ValidationError(
+                    {"errors": "Such subscription doesn't exist"}
+                )
