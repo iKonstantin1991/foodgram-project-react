@@ -1,17 +1,14 @@
-import datetime as dt
-
 from django.contrib.auth import get_user_model
 from django.db import models
-from pytz import timezone
 
-from backend import settings
+from .serve_functions import rename_with_date
 
 User = get_user_model()
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=200)
-    color = models.CharField(max_length=7)  # Should check
+    name = models.CharField(max_length=200, db_index=True)
+    color = models.CharField(max_length=7)
     slug = models.SlugField(max_length=200)
 
     class Meta:
@@ -28,7 +25,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, db_index=True)
     measurements_unit = models.CharField(max_length=30)
 
     class Meta:
@@ -36,14 +33,6 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return f'{self.name}({self.measurements_unit})'
-
-
-def rename_with_date_and_save(instance, filename):
-    now = (dt.datetime.now(tz=timezone(settings.TIME_ZONE))
-           .strftime(r'%Y_%m_%d-%H_%M_%S'))
-    name, extension = filename.split('.')
-    filename = name + f'_{now}.' + extension
-    return f'recipes/{filename}'
 
 
 class Recipe(models.Model):
@@ -57,7 +46,7 @@ class Recipe(models.Model):
         max_length=300,
     )
     image = models.ImageField(
-        upload_to=rename_with_date_and_save,
+        upload_to=rename_with_date,
         blank=True,
         null=True
     )
@@ -104,7 +93,7 @@ class IngredientForRecipe(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
     )
-    amount = models.IntegerField()
+    amount = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['recipe']
@@ -155,10 +144,6 @@ class ShoppingList(models.Model):
         on_delete=models.CASCADE,
         related_name='is_in_shopping_list'
     )
-    # def __init__(self):
-    #     super().__init__()
-    #     self.user.related_name = 'recipes_in_shopping_list'
-    #     self.recipe.related_name = 'is_in_shopping_list'
 
     class Meta:
         ordering = ['user__last_name']

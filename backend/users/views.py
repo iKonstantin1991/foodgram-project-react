@@ -31,7 +31,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['get', 'delete'],
+        methods=['get'],
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, *args, **kwargs):
@@ -40,36 +40,32 @@ class CustomUserViewSet(UserViewSet):
             user=request.user,
             interesting_author=interesting_author
         ).exists()
-        if request.method == 'GET':
-            if request.user == interesting_author:
-                raise ValidationError(
-                    {"errors": "It's not allowed to subscribe on youself"}
-                )
-            if not existance:
-                Subscription.objects.create(
-                    user=request.user,
-                    interesting_author=interesting_author
-                )
-                serializer = CustomUserSerializer(
-                    interesting_author,
-                    context={'request': request}
-                )
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            else:
-                raise ValidationError(
-                    {"errors": "Such subscription already exists"}
-                )
-        if request.method == 'DELETE':
-            if existance:
-                Subscription.objects.get(
-                    user=request.user,
-                    interesting_author=interesting_author
-                ).delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                raise ValidationError(
-                    {"errors": "Such subscription doesn't exist"}
-                )
+        if request.user == interesting_author:
+            raise ValidationError(
+                {"errors": "It's not allowed to subscribe on youself"}
+            )
+        if not existance:
+            Subscription.objects.create(
+                user=request.user,
+                interesting_author=interesting_author
+            )
+            serializer = CustomUserSerializer(
+                interesting_author,
+                context={'request': request}
+            )
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            raise ValidationError(
+                {"errors": "Such subscription already exists"}
+            )
+
+    @subscribe.mapping.delete
+    def unsubscribe(self, request, *args, **kwargs):
+        Subscription.objects.filter(
+            user=request.user,
+            interesting_author__id=self.kwargs['id']
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

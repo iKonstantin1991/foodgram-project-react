@@ -17,11 +17,11 @@ class IngredientFilter(FilterSet):
 
 class RecipeFilter(FilterSet):
     tags = django_filters.CharFilter(field_name='tags__slug')
-    is_favorited = django_filters.NumberFilter(
+    is_favorited = django_filters.BooleanFilter(
         field_name='is_favorite_for_users',
         method='get_is_favorite'
     )
-    is_in_shopping_cart = django_filters.NumberFilter(
+    is_in_shopping_cart = django_filters.BooleanFilter(
         field_name='is_in_shopping_list',
         method='get_is_in_shopping_list'
     )
@@ -31,13 +31,13 @@ class RecipeFilter(FilterSet):
         fields = ["author", "tags", "is_favorited", "is_in_shopping_cart"]
 
     def get_is_favorite(self, queryset, name, value):
-        if value == 1:
+        if value:
             lookup = '__'.join([name, 'user'])
             return queryset.filter(**{lookup: self.request.user})
         return queryset
 
     def get_is_in_shopping_list(self, queryset, name, value):
-        if value == 1:
+        if value:
             lookup = '__'.join([name, 'user'])
             return queryset.filter(**{lookup: self.request.user})
         return queryset
