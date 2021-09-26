@@ -32,12 +32,14 @@ class RecipeFilter(FilterSet):
 
     def get_is_favorite(self, queryset, name, value):
         if value:
-            lookup = '__'.join([name, 'user'])
-            return queryset.filter(**{lookup: self.request.user})
+            recipes_in_favorits = '__'.join([name, 'user'])
+            return queryset.filter(**{recipes_in_favorits: self.request.user})
         return queryset
 
     def get_is_in_shopping_list(self, queryset, name, value):
         if value:
-            lookup = '__'.join([name, 'user'])
-            return queryset.filter(**{lookup: self.request.user})
+            recipes_in_shopping_list = '__'.join([name, 'user'])
+            return queryset.filter(
+                **{recipes_in_shopping_list: self.request.user}
+            )
         return queryset

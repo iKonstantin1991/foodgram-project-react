@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from .serve_functions import rename_with_date
@@ -60,7 +61,9 @@ class Recipe(models.Model):
         through='IngredientForRecipe',
         related_name='recipes',
     )
-    cooking_time = models.IntegerField()
+    cooking_time = models.PositiveIntegerField(
+        validators=[MinValueValidator(0)]
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -93,7 +96,7 @@ class IngredientForRecipe(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
     )
-    amount = models.PositiveIntegerField()
+    amount = models.PositiveIntegerField(validators=[MinValueValidator(0)])
 
     class Meta:
         ordering = ['recipe']

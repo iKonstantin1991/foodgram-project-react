@@ -16,7 +16,7 @@ from .models import (FavoritRecipe, Ingredient, IngredientForRecipe, Recipe,
                      ShoppingList, Tag)
 from .permissions import OwnerOrAdminOrAuthenticatedOrReadOnly
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
-from .serve_functions import create_response, form_shop_list
+from .serve_functions import add_file_to_response, form_shop_list
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -108,5 +108,5 @@ class RecipeViewSet(ModelViewSet):
             recipe__is_in_shopping_list__user=request.user
         ).select_related('recipe').select_related('ingredient')
         data = form_shop_list(results)
-        response = create_response(data, 'text/plain')
+        response = add_file_to_response(data, 'text/plain')
         return response

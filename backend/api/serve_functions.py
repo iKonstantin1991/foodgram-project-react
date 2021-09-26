@@ -26,7 +26,7 @@ def form_shop_list(queryset):
     return final_string
 
 
-def create_response(data, content_type):
+def add_file_to_response(data, content_type):
     response = HttpResponse(data, content_type=content_type)
     response['Content-Disposition'] = ('attachment;'
                                        ' filename="shop_list.txt"')

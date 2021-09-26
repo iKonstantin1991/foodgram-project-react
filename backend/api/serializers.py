@@ -76,9 +76,31 @@ class RecipeSerializer(serializers.ModelSerializer):
                   "is_in_shopping_cart", "name", "image", "text",
                   "cooking_time")
 
+    def if_ids_repeated(self, value):
+        ids_request_set = set(value)
+        if not len(ids_request_set) == len(value):
+            raise ValidationError(
+                {'errors': 'Check for repeated values'}
+            )
+
+    def if_ids_dont_exist(self, value, model):
+        ids_request_set = set(value)
+        queryset = model.objects.all().only('id')
+        ids_from_base_set = {note.id for note in queryset}
+        if not ids_request_set.issubset(ids_from_base_set):
+            raise ValidationError(
+                {'errors': 'Some values do not exist'}
+            )
+
     def validate_tags(self, value):
-        if not len(set(value)) == len(value):
-            raise ValidationError({'errors': 'Check for repeated values'})
+        self.if_ids_repeated(value)
+        self.if_ids_dont_exist(value, Tag)
+        return value
+
+    def validate_ingredients(self, value):
+        ids_list = [note['id'] for note in value]
+        self.if_ids_repeated(ids_list)
+        self.if_ids_dont_exist(ids_list, Ingredient)
         return value
 
     def create_tags(self, tags, recipe):
