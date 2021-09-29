@@ -27,13 +27,13 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True)
-    measurements_unit = models.CharField(max_length=30)
+    measurement_unit = models.CharField(max_length=30)
 
     class Meta:
         ordering = ['name']
 
     def __str__(self):
-        return f'{self.name}({self.measurements_unit})'
+        return f'{self.name}({self.measurement_unit})'
 
 
 class Recipe(models.Model):
@@ -62,7 +62,7 @@ class Recipe(models.Model):
         related_name='recipes',
     )
     cooking_time = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(1)]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 

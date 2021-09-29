@@ -25,20 +25,20 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ("id", "name", "measurements_unit")
+        fields = ("id", "name", "measurement_unit")
 
 
 class IngredientForRecipeSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='ingredient.id', read_only=True)
     name = serializers.CharField(source='ingredient.name', read_only=True)
-    measurements_unit = serializers.CharField(
-        source='ingredient.measurements_unit',
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit',
         read_only=True
     )
 
     class Meta:
         model = IngredientForRecipe
-        fields = ("id", "name", "measurements_unit", "amount")
+        fields = ("id", "name", "measurement_unit", "amount")
 
     def to_internal_value(self, data):
         return data

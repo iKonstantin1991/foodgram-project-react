@@ -19,7 +19,7 @@ def form_shop_list(queryset):
     to_buy_list = defaultdict(int)
     for note in queryset:
         to_buy_list[(note.ingredient.name,
-                    note.ingredient.measurements_unit)] += note.amount
+                    note.ingredient.measurement_unit)] += note.amount
     final_string = ''
     for ingredient, amount in to_buy_list.items():
         final_string += f'{ingredient[0]} - {amount}({ingredient[1]})\n'

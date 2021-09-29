@@ -96,7 +96,7 @@ class RecipeViewSet(ModelViewSet):
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, *args, **kwargs):
-        return self._delete_link(request, FavoritRecipe)
+        return self._delete_link(request, ShoppingList)
 
     @action(
         methods=['get'],
