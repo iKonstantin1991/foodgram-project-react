@@ -98,40 +98,30 @@ class RecipeSerializer(serializers.ModelSerializer):
         return value
 
     def validate_ingredients(self, value):
-        ids_list = [note['id'] for note in value]
+        ids_list = [int(note['id']) for note in value]
         self.if_ids_repeated(ids_list)
         self.if_ids_dont_exist(ids_list, Ingredient)
         return value
 
     def create_tags(self, tags, recipe):
-        try:
-            for tag_id in tags:
-                tag = get_object_or_404(Tag, id=tag_id)
-                TagForRecipe.objects.create(tag=tag, recipe=recipe)
-        except APIException:
-            raise serializers.ValidationError(
-                {'errors': 'One or more tags does not exist'}
-            )
+        for tag_id in tags:
+            tag = get_object_or_404(Tag, id=tag_id)
+            TagForRecipe.objects.create(tag=tag, recipe=recipe)
 
     def update_tags(self, tags, recipe):
         TagForRecipe.objects.filter(recipe=recipe).delete()
         self.create_tags(tags, recipe)
 
     def create_ingredients(self, ingredients, recipe):
-        try:
-            for ingredient in ingredients:
-                ingredient_id, amount = ingredient['id'], ingredient['amount']
-                ingredient_obj = get_object_or_404(
-                    Ingredient, id=ingredient_id
-                )
-                IngredientForRecipe.objects.create(
-                    ingredient=ingredient_obj,
-                    amount=amount,
-                    recipe=recipe
-                )
-        except APIException:
-            raise serializers.ValidationError(
-                {'errors': 'One or more ingredients does not exist'}
+        for ingredient in ingredients:
+            ingredient_id, amount = ingredient['id'], ingredient['amount']
+            ingredient_obj = get_object_or_404(
+                Ingredient, id=ingredient_id
+            )
+            IngredientForRecipe.objects.create(
+                ingredient=ingredient_obj,
+                amount=amount,
+                recipe=recipe
             )
 
     def update_ingredients(self, ingredients, recipe):
@@ -150,16 +140,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientforrecipe_set')
+        tags = validated_data.pop('tags', False)
+        ingredients = validated_data.pop('ingredientforrecipe_set', False)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
         instance.save()
 
-        self.update_tags(tags, instance)
-        self.update_ingredients(ingredients, instance)
+        if tags:
+            self.update_tags(tags, instance)
+        if ingredients:
+            self.update_ingredients(ingredients, instance)
 
         return instance
 
