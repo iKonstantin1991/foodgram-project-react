@@ -1,18 +1,16 @@
 ![Actions Status](https://github.com/iKonstantin1991/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
-Ссылка на ресурс: 84.252.139.225
+Ссылка на ресурс: http://foodgramkonstantin.co.vu<br>
+Документация: http://foodgramkonstantin.co.vu/api/docs/
 
-Данные для входа в админку:
-email: konst@mail.ru
-password: easypass
 
-# Foodgram. Сервис для публикования рецептов.
+# Foodgram. Сервис для публикации рецептов.
 ## Описание
 Проект Foodgram собирает рецепты пользователей. Каждому рецепту можно присвоить определеные тэги, добавлять их в избранное и в список покупок а затем скачивать этот список. Можно подписываться на интересных авторов.
-## Технологии
-Python 3.8, Django REST Framework, PostgreSQL, Docker, git
+## Стек
+Python 3.8, Django 3.0.5, Django REST Framework, PostgreSQL, Docker, git
 ## Команды для запуска приложения
-Перед запуском контейнера убедитесь что у вас установлен docker, docker-compose
+Перед запуском приложения убедитесь что у вас установлен docker, docker-compose
 Для запуска приложения нужно:
 - в дирректории backend/ приложения создать файл .env и прописать внутри него:
 ```
@@ -51,6 +49,16 @@ get_random_secret_key()
 Для заполнения базы начальными данными выполните команды из дирректории backend/.<br>
 - ```docker-compose exec backend python manage.py loaddata init_data.json```
 
-## Контакты
-https://github.com/iKonstantin1991
+## Основные возможности
+- Регистрация и вход по email и паролю
+- Просмотр списка всех рецептов с фильрацией по тегам
+### Для авторизированных пользователей
+- Создание и редактирование рецептов
+- Просмотр рецептов определенного автора
+- Подписка(отписка) на интересных авторов
+- Добавление(удаление) рецептов в избранное и в список покупок
+- Возможность скачать список ингредиентов входящих в рецепты из списка покупок
 
+## Контакты
+Email: ikonstantin1991@mail.ru<br>
+Telegram: @ikonstantin91
