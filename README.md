@@ -1,7 +1,6 @@
 ![Actions Status](https://github.com/iKonstantin1991/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
-Ссылка на ресурс: http://foodgramkonstantin.co.vu<br>
-Документация: http://foodgramkonstantin.co.vu/api/docs/
+Документация: http://localhost/api/docs/redoc
 
 
 # Foodgram. Сервис для публикации рецептов.
@@ -32,11 +31,11 @@ get_random_secret_key()
 ```
 Затем скопировать полученный ключ в .env
 
-- В infra/nginx.conf изменить строку 3 на:
-```    server_name <your_ip>;```
+- В infra/nginx.conf изменить строку 3 на: 
+```server_name <your_ip>;```
 
 из дирректории infra/ выполнить команды
-- ```docker-composer up -d```
+- ```docker-compose up -d```
 - ```docker-compose exec backend python manage.py migrate --noinput```
 - ```docker-compose exec backend python manage.py collectstatic --no-input```
 
