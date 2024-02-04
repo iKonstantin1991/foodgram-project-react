@@ -31,7 +31,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['get'],
+        methods=['post'],
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, *args, **kwargs):
@@ -57,10 +57,7 @@ class CustomUserViewSet(UserViewSet):
                 serializer.data,
                 status=status.HTTP_201_CREATED
             )
-        else:
-            raise ValidationError(
-                {"errors": "Such subscription already exists"}
-            )
+        raise ValidationError({"errors": "Such subscription already exists"})
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, *args, **kwargs):

@@ -46,36 +46,9 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def _create_link(self, request, model):
-        object = get_object_or_404(Recipe, pk=self.kwargs['pk'])
-        existance = model.objects.filter(
-            user=request.user,
-            recipe=object
-        ).exists()
-        if not existance:
-            model.objects.create(
-                user=request.user,
-                recipe=object
-            )
-            serializer = RecipeLiteSerializer(object)
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED)
-        else:
-            raise ValidationError(
-                {"errors": 'Already exists'}
-            )
-
-    def _delete_link(self, request, model):
-        model.objects.filter(
-            user=request.user,
-            recipe__pk=self.kwargs['pk']
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     @action(
         detail=True,
-        methods=['get'],
+        methods=['post'],
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, *args, **kwargs):
@@ -87,7 +60,7 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=True,
-        methods=['get'],
+        methods=['post'],
         permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, *args, **kwargs):
@@ -109,3 +82,26 @@ class RecipeViewSet(ModelViewSet):
         data = form_shop_list(results)
         response = add_file_to_response(data, 'text/plain')
         return response
+
+    def _create_link(self, request, model):
+        object = get_object_or_404(Recipe, pk=self.kwargs['pk'])
+        exists = model.objects.filter(
+            user=request.user,
+            recipe=object
+        ).exists()
+        if not exists:
+            model.objects.create(
+                user=request.user,
+                recipe=object
+            )
+            serializer = RecipeLiteSerializer(object)
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        raise ValidationError({"errors": 'Already exists'})
+
+    def _delete_link(self, request, model):
+        model.objects.filter(
+            user=request.user,
+            recipe__pk=self.kwargs['pk']
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
